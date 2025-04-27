@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title id="page-title"></title>
+  <link rel="stylesheet" href="style.css"> <!-- External style.css -->
+</head>
+<body>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-text">Click anywhere to enter</div>
+</div>
+
+<div class="views" id="views">Views: 0</div>
+
+<video id="bgVideo" loop class="bg-video" muted>
+  <source src="background.mp4" type="video/mp4">
+</video>
+
+<div class="content" id="content">
+  <div class="card">
+    <img src="pfp.png" alt="Profile Picture" class="profile-pic">
+    <div class="name" id="name"></div>
+    <p>Bot Developer</p>
+    <div class="links">
+      <a href="https://discord.gg/yourserver" target="_blank">
+        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968756.png" alt="Discord">
+      </a>
+      <a href="https://instagram.com" target="_blank">
+        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram">
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="cursor-dot" id="cursor-dot"></div>
+
+<script>
+  const overlay = document.getElementById('overlay');
+  const bgVideo = document.getElementById('bgVideo');
+  const content = document.getElementById('content');
+  const nameElement = document.getElementById('name');
+  const pageTitle = document.getElementById('page-title');
+  const viewsElement = document.getElementById('views');
+  const cursorDot = document.getElementById('cursor-dot');
+
+  let mouseX = 0, mouseY = 0;
+  let dotX = 0, dotY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  function animateCursor() {
+    dotX += (mouseX - dotX) * 0.2;
+    dotY += (mouseY - dotY) * 0.2;
+    cursorDot.style.top = `${dotY}px`;
+    cursorDot.style.left = `${dotX}px`;
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  // Change both of these to your liking.
+  const nameText = "Jess";
+  const titleText = "sematary.dev";
+
+  function typeWriterLoop(element, text, speed = 250, deleteSpeed = 100, delayAfter = 2000) {
+    let i = 0;
+    let isDeleting = false;
+
+    function type() {
+      if (isDeleting) {
+        element.innerHTML = text.substring(0, i--);
+      } else {
+        element.innerHTML = text.substring(0, i++);
+      }
+
+      let currentSpeed = isDeleting ? deleteSpeed : speed;
+
+      if (!isDeleting && i > text.length) {
+        setTimeout(() => {
+          isDeleting = true;
+          type();
+        }, delayAfter);
+        return;
+      } else if (isDeleting && i === 0) {
+        isDeleting = false;
+      }
+
+      setTimeout(type, currentSpeed);
+    }
+
+    type();
+  }
+
+  function typeWriter(element, text, speed, i = 0) {
+    if (i < text.length) {
+      element.innerHTML += text.charAt(i);
+      setTimeout(() => typeWriter(element, text, speed, i + 1), speed);
+    }
+  }
+
+  document.addEventListener('click', async () => {
+    if (document.documentElement.requestFullscreen) {
+      await document.documentElement.requestFullscreen();
+    } else if (document.documentElement.webkitRequestFullscreen) {
+      await document.documentElement.webkitRequestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) {
+      await document.documentElement.msRequestFullscreen();
+    }
+
+    bgVideo.style.display = 'block';
+    bgVideo.muted = false;
+    bgVideo.play();
+
+    overlay.style.opacity = 0;
+    setTimeout(() => {
+      overlay.style.display = 'none';
+    }, 1000);
+
+    content.style.opacity = 1;
+    content.style.transform = 'translate(-50%, -50%) scale(1)';
+    document.body.style.cursor = 'none';
+
+    setTimeout(() => {
+      typeWriterLoop(nameElement, nameText, 250, 100, 2000);
+      typeWriter(pageTitle, titleText, 250);
+    }, 500);
+
+    // Local Storage Views
+    let views = localStorage.getItem('views') || 0;
+    views++;
+    localStorage.setItem('views', views);
+    viewsElement.textContent = `  Profile Views: ${views}`;
+  }, { once: true });
+
+  document.addEventListener("visibilitychange", function() {
+    if (document.hidden) {
+      bgVideo.pause();
+    } else {
+      bgVideo.play();
+    }
+  });
+
+  // Remember don't SKID my code.
+</script>
+
+</body>
+</html>
